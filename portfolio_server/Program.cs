@@ -8,6 +8,16 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("CorsPolicy", policy =>
+    {
+        policy.WithOrigins("http://localhost:4200", "https://mynewportfolio.azurewebsites.net")
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
+
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<ISenderFactory, SenderFactory>();
 
@@ -22,6 +32,8 @@ builder.Services.AddSingleton<IEmailAuthentication>(sp =>
     sp.GetRequiredService<EmailAuthentication>());
 
 var app = builder.Build();
+
+app.UseCors("CorsPolicy");
 
 if (app.Environment.IsDevelopment())
 {
